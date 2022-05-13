@@ -1,67 +1,59 @@
-
-
-/*Nombre de fun- ción get_next_line
-Prototipo  char *get_next_line(int fd);
-Archivos a entre- gar get_next_line.c, get_next_line_utils.c,
-get_next_line.h
-Parámetros Valor devuelto File descriptor del que leer
-Si todo va bien: la línea leída
-En caso de fallo o si la lectura termina: NULL
-Funciones autori- zadas
-
-read, malloc, free
-
-Descripción
-
-Escribe una función que devuelva la línea leída de
-un file descriptor
-*/
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   get_next_line.c                                    :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: anherrer <anherrer@student.42malaga.com    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2022/05/11 21:07:42 by anherrer          #+#    #+#             */
+/*   Updated: 2022/05/11 21:07:58 by anherrer         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
 #include "get_next_line.h"
-#include <fcntl.h>
-#include <unistd.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-char *get_next_line(int fd)
-{
-    char *buf;
-	char *dest;
-	char *src;
-	int i;
-    ssize_t nbytes;
-	i=0;
-	buf=(char *)malloc(BUFFER_SIZE * sizeof(char));
-	dest=(char *)malloc(BUFFER_SIZE * sizeof(char));
-    if(fd==-1)
-        {
-            return "Error al abrir el archivo.\n";
-        }
-        else{
 
-           nbytes=read(fd,buf,BUFFER_SIZE);
-           if(nbytes==0)
-			 		printf("Archvio vacio.\n");
-            else
-				{
-					//printf("%d",BUFFER_SIZE);
-					while(buf[i]!='\n' && i!=BUFFER_SIZE)
-					{
-						
-						dest[i]=buf[i];
-						//printf("%c",buf[i]);
-						i++;
-					}
-					dest[i]='\0';
-				}
-				src=ft_strjoin(src,dest);
-        }
-	free(buf);
-	return(src);
+char	*read_to_line(int fd, char *src)
+{
+	char	*buff;
+	int		result;
+
+	buff = malloc((BUFFER_SIZE + 1) * sizeof(char));
+	if (!buff)
+		return (NULL);
+	result = 1;
+	while (!ft_strcompr(src, '\n') && result != 0)
+	{
+		result = read(fd, buff, BUFFER_SIZE);
+		if (result < 0)
+		{
+			free(buff);
+			return (NULL);
+		}
+		buff[result] = '\0';
+		src = ft_strjoin(src, buff);
+	}
+	free(buff);
+	return (src);
 }
 
-int	main(void)
+char	*get_next_line(int fd)
 {
+	char		*line;
+	static char	*src;
+
+	if (fd == -1 || BUFFER_SIZE <= 0)
+		return (0);
+	src = read_to_line(fd, src);
+	if (!src)
+		return (NULL);
+	line = get_line(src);
+	src = ft_new_left_str(src);
+	return (line);
+}
+
+/*int	main(void)
+{
+	
 	char	*line;
 	int		i;
 	int		fd1;
@@ -69,7 +61,8 @@ int	main(void)
 	fd1 = open("test/test1.txt", O_RDONLY);
 
 	i = 1;
-	while (i < 3)
+	
+	while (i < 9)
 	{
 		line = get_next_line(fd1);
 		printf("line [%02d]: %s\n", i, line);
@@ -78,4 +71,4 @@ int	main(void)
 	}
 	close(fd1);
 	return (0);
-}
+}*/
